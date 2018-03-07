@@ -1,0 +1,15 @@
+{
+  "name": "restify-app",
+  "version": "1.0.0",
+  "description": "This is a sample restify app for the class",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node app"
+  },
+  "author": "Inventive",
+  "license": "ISC",
+  "dependencies": {
+    "restify": "^6.3.4"
+  }
+}
