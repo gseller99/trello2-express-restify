@@ -10,8 +10,8 @@ $('document').ready(function() {
 });
 
 var newSwimlane;
-var swimlaneNumber;
-var idSwimlane;
+// var swimlaneNumber;
+// var idSwimlane;
 
 function renderExistingSwimlanes() {
     $.ajax({
@@ -73,7 +73,6 @@ function drawSwimlane(id, name) {
             otherSwimlane.detach();
             otherSwimlane.insertAfter(thisSwimlane);
             otherSwimlane.css("zIndex", 0);
-
         }
     });
 
@@ -87,14 +86,12 @@ function drawSwimlane(id, name) {
     });    
 
     buttons.on('click', '.fa-pencil-alt', function() {
-        var newName = prompt('New card name').value;
+        var newName = prompt('Card name replacement').value;
         $('this').closest(".cardHeader").remove();
         $('swimlane').append(newName);
     });
 
     buttons.on('click', '.fa-plus', function() {
-       
-
         var cardHeader = prompt('New card name');
         var cardId = getNewId();
         drawCard(id, cardHeader);       
