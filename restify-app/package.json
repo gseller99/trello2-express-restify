@@ -11,5 +11,8 @@
   "license": "ISC",
   "dependencies": {
     "restify": "^6.3.4"
+  },
+  "devDependencies": {
+    "nodemon": "^1.17.1"
   }
 }

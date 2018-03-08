@@ -43,7 +43,7 @@ function renderExistingCards(swimlaneId) {
             console.log(cards);
 
             for (var i = 0; i < cards.length; i++) {
-                drawCard(swimlaneId, cards[i].name);
+                drawCard(swimlaneId, cards[i].name, cards[i].cardDescription);
             }
         });
 }
@@ -93,17 +93,21 @@ function drawSwimlane(id, name) {
 
     buttons.on('click', '.fa-plus', function() {
         var cardHeader = prompt('New card name');
+        var cardDescription = prompt('New card description');
         var cardId = getNewId();
-        drawCard(id, cardHeader);       
-        saveCard({id: cardId, swimlane_id: id, name: cardHeader});
+        drawCard(id, cardHeader, cardDescription);
+        //drawCardDescription(id, CardDescription);      
+        saveCard({id: cardId, swimlane_id: id, name: cardHeader, cardDescription: cardDescription});
+        //save description function needed
     })
 
     $('#swimlanes').append(newSwimlane);
 }
 
-function drawCard(swimlaneId, name) {
+function drawCard(swimlaneId, name, cardDescription) {
     
         var card = $('<div class="card"></div>');
+        
 
         card.draggable();
         card.droppable({
@@ -119,6 +123,7 @@ function drawCard(swimlaneId, name) {
         card.append('<div class="cardHeader">' + name + '</div>')
         var cardButtons = $('<div class="buttons"><i class="fas fa-trash-alt icons"></i><i class="fas fa-pencil-alt icons"></i></div>');
         card.append(cardButtons);
+        card.append('<div class="cardDescription">' + cardDescription + '</div>')
         $("#"+ swimlaneId).append(card);
 
         cardButtons.on('click', '.fa-trash-alt', function() {
@@ -126,6 +131,7 @@ function drawCard(swimlaneId, name) {
         });
     }
 
+    
 function saveSwimlane(swimlane) {
     $.ajax({
             method: "POST",

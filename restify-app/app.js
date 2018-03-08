@@ -20,13 +20,14 @@ let swimlanes = [{
 let cards = [{
 		"id": 1,
 		"swimlane_id": 1,
-		"name": "card 1"
-		
+		"name": "card 1",
+		"cardDescription": "description 1"
 	},
 	{
 		"id": 2,
 		"swimlane_id": 2,
-		"name": "card 2"
+		"name": "card 2",
+		"cardDescription" : "description 2"
 	}
 ];
 
@@ -35,10 +36,11 @@ var Swimlane = function(id, name){
 	this.name = name;
 }
 
-var Card = function(id, swimlane_id, name){
+var Card = function(id, swimlane_id, name, cardDescription){
 	this.id = id;
 	this.swimlane_id = swimlane_id;
 	this.name = name;
+	this.cardDescription = cardDescription;
 }
 
 function getSwimlanes(req, res, next) {
@@ -82,7 +84,7 @@ function postCard(req, res, next) {
 	
 	console.log(req.body);
 
-	var card = new Card(req.body.id, req.body.swimlane_id, req.body.name);
+	var card = new Card(req.body.id, req.body.swimlane_id, req.body.name, req.body.cardDescription);
 
 	cards.push(card);
 
