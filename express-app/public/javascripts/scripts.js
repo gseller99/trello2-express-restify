@@ -43,7 +43,7 @@ function renderExistingCards(swimlaneId) {
             console.log(cards);
 
             for (var i = 0; i < cards.length; i++) {
-                drawCard(swimlaneId, cards[i].name, cards[i].cardDescription);
+                drawCard(swimlaneId, cards[i].name, cards[i].cardDescription, cards[i].id);
             }
         });
 }
@@ -102,7 +102,7 @@ function drawSwimlane(id, name) {
         var cardHeader = prompt('New card name');
         var cardDescription = prompt('New card description');
         var cardId = getNewId();
-        drawCard(id, cardHeader, cardDescription);
+        drawCard(id, cardHeader, cardDescription, cardId);
         //drawCardDescription(id, CardDescription);      
         saveCard({id: cardId, swimlane_id: id, name: cardHeader, cardDescription: cardDescription});
         //save description function needed
@@ -111,10 +111,9 @@ function drawSwimlane(id, name) {
     $('#swimlanes').append(newSwimlane);
 }
 
-function drawCard(swimlaneId, name, cardDescription) {
+function drawCard(swimlaneId, name, cardDescription, card_id) {
     
         var card = $('<div class="card"></div>');
-        
 
         card.draggable();
         card.droppable({
@@ -127,8 +126,9 @@ function drawCard(swimlaneId, name, cardDescription) {
             }
         });
 
-        card.append('<div class="cardHeader">' + name + '</div>')
-        var cardButtons = $('<div class="buttons"><i class="fas fa-trash-alt icons"></i><i class="fas fa-pencil-alt icons"></i></div>');
+        var cardHeader = $('<div class="cardHeader">' + name + '</div>');
+        card.append(cardHeader);
+        var cardButtons = $('<div class="buttons"><i class="fas fa-trash-alt icons"></i><i class="fas cardHeaderEdit fa-pencil-alt icons"></i></div>');
         card.append(cardButtons);
         card.append('<div class="cardDescription">' + cardDescription + '</div>')
         $("#"+ swimlaneId).append(card);
@@ -136,9 +136,11 @@ function drawCard(swimlaneId, name, cardDescription) {
         cardButtons.on('click', '.fa-trash-alt', function() {
             $(this).closest('.card').remove();
         });
-        cardButtons.on('click', '.fa-pencil-alt', function() {
+        
+        cardButtons.on('click', '.cardHeaderEdit', function() {
         var newName = prompt('Card name replacement');
-       //swimlane logic
+        cardHeader.text(newName);
+        updateCardName(card_id, newName);
     });
     }
 
@@ -164,6 +166,18 @@ function updateSwimlane(id, name) {
             alert("Swimlane Update: " + swimlane);
         });  
 }
+
+function updateCardName(id, name) {
+  $.ajax({
+            method: "POST",
+            url: "http://localhost:8080/swimlanes/cards/" + id,
+            data: {name: name}
+        })
+        .done(function(card) {
+            alert("Card Update: " + card);
+        });  
+}
+
 
 function saveCard(card) {
     $.ajax({

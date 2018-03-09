@@ -123,6 +123,26 @@ swimlane.name = name;
 res.send(swimlane);
 }
 
+
+//need to change names to card
+function updateCardNameById (req, res, next) {
+res.header("Access-Control-Allow-Origin", "*");
+res.header("Access-Control-Allow-Headers", "X-Requested-With");
+//get swimlaneid from url
+var card_id = req.params.card_id;
+//get newswimlane name from body
+var name = req.body.name;
+//find swimlane by swimlane id
+var card = cards.find(function(card){
+	return card.id == card_id;
+});
+//update card name property
+card.name = name;
+//return card to caller
+res.send(card);
+}
+
+
 // Set up our routes and start the server
 server.get('/swimlanes', getSwimlanes);
 server.post('/swimlanes', postSwimlane);
@@ -132,6 +152,7 @@ server.post('/swimlanes/:swimlane_id', updateSwimlaneById);
 
 server.get('/cards', getCards);
 server.post('/cards', postCard);
+server.post('/swimlanes/cards/:card_id', updateCardNameById)
 
 server.listen(8080, function() {
 	console.log('%s listening at %s', server.name, server.url);
