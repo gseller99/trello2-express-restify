@@ -75,21 +75,28 @@ function drawSwimlane(id, name) {
             otherSwimlane.css("zIndex", 0);
         }
     });
+    var swimlaneHeader = $('<div class="swimlaneHeader">' + name + '</div>');
 
-    newSwimlane.append('<div class="swimlaneHeader">' + name + '</div>');
+    newSwimlane.append(swimlaneHeader);
+  
 
     var buttons = newSwimlane.append('<div class="buttons"><i class="fas fa-trash-alt icons"></i><i class="fas fa-pencil-alt icons"></i><i class="fas fa-plus icons"></i></div>');
 
     buttons.on('click', '.fa-trash-alt', function() {
         $(this).closest('.swimlane').remove();
 
-    });    
+    });
 
     buttons.on('click', '.fa-pencil-alt', function() {
-        var newName = prompt('Card name replacement').value;
-        $('this').closest(".cardHeader").remove();
-        $('swimlane').append(newName);
+      var newName = prompt('New swimlane name');
+      swimlaneHeader.text(newName);  
+      updateSwimlane(id,newName);
+
+        // $(this).closest('.swimlane').remove();
+
     });
+
+    
 
     buttons.on('click', '.fa-plus', function() {
         var cardHeader = prompt('New card name');
@@ -129,6 +136,10 @@ function drawCard(swimlaneId, name, cardDescription) {
         cardButtons.on('click', '.fa-trash-alt', function() {
             $(this).closest('.card').remove();
         });
+        cardButtons.on('click', '.fa-pencil-alt', function() {
+        var newName = prompt('Card name replacement');
+       //swimlane logic
+    });
     }
 
     
@@ -141,6 +152,17 @@ function saveSwimlane(swimlane) {
         .done(function(swimlane) {
             alert("Swimlane Saved: " + swimlane);
         });
+}
+
+function updateSwimlane(id, name) {
+  $.ajax({
+            method: "POST",
+            url: "http://localhost:8080/swimlanes/" + id,
+            data: {name: name}
+        })
+        .done(function(swimlane) {
+            alert("Swimlane Update: " + swimlane);
+        });  
 }
 
 function saveCard(card) {

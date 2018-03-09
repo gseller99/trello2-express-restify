@@ -105,11 +105,30 @@ function getCardsBySwimlaneId (req, res, next){
 	res.send(results);
 }
 
+
+function updateSwimlaneById (req, res, next) {
+res.header("Access-Control-Allow-Origin", "*");
+res.header("Access-Control-Allow-Headers", "X-Requested-With");
+//get swimlaneid from url
+var swimlane_id = req.params.swimlane_id;
+//get newswimlane name from body
+var name = req.body.name;
+//find swimlane by swimlane id
+var swimlane = swimlanes.find(function(swimlane){
+	return swimlane.id == swimlane_id;
+});
+//update swimlanes name property
+swimlane.name = name;
+//return swimlane to caller
+res.send(swimlane);
+}
+
 // Set up our routes and start the server
 server.get('/swimlanes', getSwimlanes);
 server.post('/swimlanes', postSwimlane);
 
 server.get('/swimlanes/:swimlane_id/cards', getCardsBySwimlaneId);
+server.post('/swimlanes/:swimlane_id', updateSwimlaneById);
 
 server.get('/cards', getCards);
 server.post('/cards', postCard);
