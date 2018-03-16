@@ -1,48 +1,92 @@
-var restify = require('restify');
 
+//standard protocol to require restify
+var restify = require('restify');
 var server = restify.createServer();
 
+//***additional sequelize code
+const Sequelize = require("sequelize");
+const Op = Sequelize.Op;
+
+//setup restify
 server.use(restify.plugins.acceptParser(server.acceptable));
 server.use(restify.plugins.queryParser());
 server.use(restify.plugins.bodyParser());
 
-let swimlanes = [{
-		"id": 1,
-		"name": "swimlane 1",
+//***setup the mysql configuration
+const sql = new Sequelize('trello', 'root', '!Mysql99', {
+	host: 'localhost',
+	port: 3306,
+	dialect: 'mysql',
+	operatorsAliases: false,
+	pool: {
+		max: 5,
+		min: 0,
+		acuire: 30000,
+		idle: 10000
+	}
+});
+
+//***make the connection
+sql
+	.authenticate()
+	.then(() => {
+		console.log("The connection was successful!");
+	})
+	.catch(err => {
+		console.log("There was an error when connecting!");
+	});
+
+var Swimlane = sql.define('swimlane', {
+	id: { type: Sequelize.UUID, primaryKey: true, defaultValue: Sequelize.UUIDV4 },
+	name: { type: Sequelize.STRING }
+	// description: { type: Sequelize.STRING }
+});
+
+sql.sync();
+
+
+// //static swimlanes to make sure render on page when command lines express/restify started, localhost:3000
+// let swimlanes = [{
+// 		"id": 1,
+// 		"name": "swimlane 1",
 		
-	},
-	{
-		"id": 2,
-		"name": "swimlane 2",
-	}
-];
+// 	},
+// 	{
+// 		"id": 2,
+// 		"name": "swimlane 2",
+// 	}
+// ];
 
-let cards = [{
-		"id": 1,
-		"swimlane_id": 1,
-		"name": "card 1",
-		"cardDescription": "description 1"
-	},
-	{
-		"id": 2,
-		"swimlane_id": 2,
-		"name": "card 2",
-		"cardDescription" : "description 2"
-	}
-];
+// //static cards rendering on webpage
+// let cards = [{
+// 		"id": 1,
+// 		"swimlane_id": 1,
+// 		"name": "card 1",
+// 		"cardDescription": "description 1"
+// 	},
+// 	{
+// 		"id": 2,
+// 		"swimlane_id": 2,
+// 		"name": "card 2",
+// 		"cardDescription" : "description 2"
+// 	}
+// ];
 
-var Swimlane = function(id, name){
-	this.id = id;
-	this.name = name;
-}
+// //Constructor for swimlanes
+// var Swimlane = function(id, name){
+// 	this.id = id;
+// 	this.name = name;
+// }
 
-var Card = function(id, swimlane_id, name, cardDescription){
-	this.id = id;
-	this.swimlane_id = swimlane_id;
-	this.name = name;
-	this.cardDescription = cardDescription;
-}
+// //Constructor for cards
+// var Card = function(id, swimlane_id, name, cardDescription){
+// 	this.id = id;
+// 	this.swimlane_id = swimlane_id;
+// 	this.name = name;
+// 	this.cardDescription = cardDescription;
+// }
 
+//gets swimlanes passing in request, response, next [where does it use them]
 function getSwimlanes(req, res, next) {
 	// Restify currently has a bug which doesn't allow you to set default headers
 	// These headers comply with CORS and allow us to serve our response to any origin
@@ -50,9 +94,13 @@ function getSwimlanes(req, res, next) {
 	res.header("Access-Control-Allow-Headers", "X-Requested-With");
 
 	//find the appropriate data
-	res.send(swimlanes);
+	Swimlane.findAll().then((swimlanes) => {
+		res.send(swimlanes);
+	});
+	// res.send(swimlanes);
 }
 
+//gets cards passing in request, response, next [where does it use them]
 function getCards(req, res, next) {
 	// Restify currently has a bug which doesn't allow you to set default headers
 	// These headers comply with CORS and allow us to serve our response to any origin
@@ -63,21 +111,29 @@ function getCards(req, res, next) {
 	res.send(cards);
 }
 
+//posts swimlanes passing in request, response, next
 function postSwimlane(req, res, next) {
 	res.header("Access-Control-Allow-Origin", "*");
 	res.header("Access-Control-Allow-Headers", "X-Requested-With");
 	
 	console.log(req.body);
 
-	var swimlane = new Swimlane(req.body.id, req.body.name);
+	Swimlane.create({
+		name: req.body.name
+	}).then((swimlane) => {
+		res.send(swimlane);
+	});
 
-	swimlanes.push(swimlane);
+	// var swimlane = new Swimlane(req.body.id, req.body.name);
 
-	// save the new message to the collection
+	// swimlanes.push(swimlane);
 
-	res.send(swimlane);
+	// // save the new message to the collection
+
+	// res.send(swimlane);
 }
 
+//posts cards passing in request, response, next
 function postCard(req, res, next) {
 	res.header("Access-Control-Allow-Origin", "*");
 	res.header("Access-Control-Allow-Headers", "X-Requested-With");
@@ -92,6 +148,7 @@ function postCard(req, res, next) {
 
 	res.send(card);
 }
+
 
 function getCardsBySwimlaneId (req, res, next){
 	res.header("Access-Control-Allow-Origin", "*");

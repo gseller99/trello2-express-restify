@@ -79,8 +79,9 @@ function drawSwimlane(id, name) {
 
     newSwimlane.append(swimlaneHeader);
   
+    var buttons = $('<div class="buttons"><i class="fas fa-trash-alt icons"></i><i class="fas fa-pencil-alt icons"></i><i class="fas fa-plus icons"></i></div>');
 
-    var buttons = newSwimlane.append('<div class="buttons"><i class="fas fa-trash-alt icons"></i><i class="fas fa-pencil-alt icons"></i><i class="fas fa-plus icons"></i></div>');
+    newSwimlane.append(buttons);
 
     buttons.on('click', '.fa-trash-alt', function() {
         $(this).closest('.swimlane').remove();
@@ -91,12 +92,7 @@ function drawSwimlane(id, name) {
       var newName = prompt('New swimlane name');
       swimlaneHeader.text(newName);  
       updateSwimlane(id,newName);
-
-        // $(this).closest('.swimlane').remove();
-
     });
-
-    
 
     buttons.on('click', '.fa-plus', function() {
         var cardHeader = prompt('New card name');
@@ -144,7 +140,6 @@ function drawCard(swimlaneId, name, cardDescription, card_id) {
     });
     }
 
-    
 function saveSwimlane(swimlane) {
     $.ajax({
             method: "POST",
@@ -177,7 +172,6 @@ function updateCardName(id, name) {
             alert("Card Update: " + card);
         });  
 }
-
 
 function saveCard(card) {
     $.ajax({

@@ -1,3 +1,5 @@
+//standard requires for express, nodemon app.js activates I believe
+
 var express = require('express');
 var path = require('path');
 var favicon = require('serve-favicon');
