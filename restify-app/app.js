@@ -1,3 +1,4 @@
+//this is definitely standard
 //standard protocol to require restify
 var restify = require('restify');
 var server = restify.createServer();
