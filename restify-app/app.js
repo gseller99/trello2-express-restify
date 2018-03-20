@@ -1,9 +1,9 @@
 //this is definitely standard
 //standard protocol to require restify
-var restify = require('restify');
-var server = restify.createServer();
+const restify = require('restify');
+const server = restify.createServer();
 
-//***additional sequelize code
+//additional sequelize code
 const Sequelize = require("sequelize");
 const Op = Sequelize.Op;
 
@@ -12,7 +12,7 @@ server.use(restify.plugins.acceptParser(server.acceptable));
 server.use(restify.plugins.queryParser());
 server.use(restify.plugins.bodyParser());
 
-//***setup the mysql configuration
+//setup the mysql configuration
 const sql = new Sequelize('trello', 'root', '!Mysql99', {
 	host: 'localhost',
 	port: 3306,
@@ -26,7 +26,7 @@ const sql = new Sequelize('trello', 'root', '!Mysql99', {
 	}
 });
 
-//***make the connection
+//make the connection
 sql
 	.authenticate()
 	.then(() => {
@@ -36,14 +36,32 @@ sql
 		console.log("There was an error when connecting!");
 	});
 
+
+//set up swimlane table
 var Swimlane = sql.define('swimlane', {
 	id: { type: Sequelize.UUID, primaryKey: true, defaultValue: Sequelize.UUIDV4 },
 	name: { type: Sequelize.STRING }
-	// description: { type: Sequelize.STRING }
 });
+
+
+//***set up card table
+var Card = sql.define('card', {
+	id: { type: Sequelize.UUID, primaryKey: true, defaultValue: Sequelize.UUIDV4 },
+	name: { type: Sequelize.STRING },
+	cardDescription: { type: Sequelize.STRING }
+});
+
+
+
+//***set up sql associations
+Card.Swimlane = Card.belongsTo(Swimlane);
 
 sql.sync();
 
+//the force flag will drop the tables if they exist and recreate them - NOT FOR PRODUCTION
+// sql.sync({ force: true }).then(() => {
+// 	getSwimlanes();
+// });
 
 // //static swimlanes to make sure render on page when command lines express/restify started, localhost:3000
 // let swimlanes = [{
@@ -100,7 +118,7 @@ function getSwimlanes(req, res, next) {
 	// res.send(swimlanes);
 }
 
-//gets cards passing in request, response, next [where does it use them]
+//***gets cards passing in request, response, next [where does it use them]
 function getCards(req, res, next) {
 	// Restify currently has a bug which doesn't allow you to set default headers
 	// These headers comply with CORS and allow us to serve our response to any origin
@@ -108,7 +126,10 @@ function getCards(req, res, next) {
 	res.header("Access-Control-Allow-Headers", "X-Requested-With");
 
 	//find the appropriate data
-	res.send(cards);
+	Card.findAll().then((cards) => {
+		res.send(cards);
+	});
+	// res.send(cards);
 }
 
 //posts swimlanes passing in request, response, next
@@ -128,25 +149,41 @@ function postSwimlane(req, res, next) {
 
 	// swimlanes.push(swimlane);
 
-	// // save the new message to the collection
-
 	// res.send(swimlane);
 }
 
-//posts cards passing in request, response, next
+//***posts cards passing in request, response, next - needs to know from ajax in express lower case swimlane id
 function postCard(req, res, next) {
 	res.header("Access-Control-Allow-Origin", "*");
 	res.header("Access-Control-Allow-Headers", "X-Requested-With");
 	
 	console.log(req.body);
 
-	var card = new Card(req.body.id, req.body.swimlane_id, req.body.name, req.body.cardDescription);
+	Swimlane.findAll({
+  		where: {
+    		id: req.body.swimlane_id
+  		}
+	})
+	.then((swimlanes) => {
+		Card.create({
+			name: req.body.name,
+			cardDescription: req.body.cardDescription
+		}).then((card) => {
+			card.setSwimlane(swimlanes[0]);
+			res.send(card);
+		});
+	});
 
-	cards.push(card);
 
-	// save the new message to the collection
+	
 
-	res.send(card);
+	// var card = new Card(req.body.id, req.body.swimlane_id, req.body.name, req.body.cardDescription);
+
+	// cards.push(card);
+
+	// // save the new message to the collection
+
+	// res.send(card);
 }
 
 
@@ -155,11 +192,17 @@ function getCardsBySwimlaneId (req, res, next){
 	res.header("Access-Control-Allow-Headers", "X-Requested-With");
 	
 	console.log(req.params)
-	var results = cards.filter(function(card){
-		return card.swimlane_id == req.params.swimlane_id;
+	
+	Card.findAll({
+  		include: [{
+        	model: Swimlane,
+        	where: { id: req.params.swimlane_id }
+    	}]
+ 		
+	})
+	.then ((cards) => {
+		res.send(cards);
 	});
-
-	res.send(results);
 }
 
 
