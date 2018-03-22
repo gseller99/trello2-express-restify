@@ -3,9 +3,8 @@ $('document').ready(function() {
    
     $('button').on('click', function() {
         var swimlaneName = prompt('New swimlane name');
-        var id = getNewId();
-        drawSwimlane(id, swimlaneName);
-        saveSwimlane({id: id, name: swimlaneName});   
+        var id = saveSwimlane({name: swimlaneName}); 
+        drawSwimlane(id, swimlaneName);  
     });
 });
 
@@ -100,7 +99,7 @@ function drawSwimlane(id, name) {
         var cardId = getNewId();
         drawCard(id, cardHeader, cardDescription, cardId);
         //drawCardDescription(id, CardDescription);      
-        saveCard({id: cardId, swimlane_id: id, name: cardHeader, cardDescription: cardDescription});
+        saveCard({id: cardId, swimlaneId: id, name: cardHeader, cardDescription: cardDescription});
         //save description function needed
     })
 
@@ -147,7 +146,8 @@ function saveSwimlane(swimlane) {
             data: swimlane
         })
         .done(function(swimlane) {
-            alert("Swimlane Saved: " + swimlane);
+            alert("Swimlane Saved: " + swimlane.id);
+            return swimlane.id;
         });
 }
 
@@ -177,7 +177,8 @@ function saveCard(card) {
     $.ajax({
             method: "POST",
             url: "http://localhost:8080/cards",
-            data: card
+            data: card,
+            datatype: 'json'
         })
         .done(function(card) {
             alert("Card Saved: " + card);

@@ -161,7 +161,7 @@ function postCard(req, res, next) {
 
 	Swimlane.findAll({
   		where: {
-    		id: req.body.swimlane_id
+    		id: req.body.swimlaneId
   		}
 	})
 	.then((swimlanes) => {
